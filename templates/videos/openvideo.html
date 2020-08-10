@@ -1,0 +1,171 @@
+{%extends 'basic.html'%}
+{%block title%} {{data.title}} {%endblock%}
+{%block css%}
+.img-fluid {
+max-width: 100%;
+height: 500px;
+}
+{%endblock%}
+{%block body%}
+{% load humanize %}
+<div class="container-fluid mt-3">
+
+  <div class="row">
+    <div class="col-md-8 blog-main">
+      <div class="embed-responsive embed-responsive-16by9 ">
+        <iframe class="embed-responsive-item" src="{{data.link}}" allowfullscreen=""></iframe>
+      </div>
+      <!--<h3 class="pb-4 mb-4 font-italic border-bottom">
+        {{data.title}}
+      </h3>-->
+
+      <div class="blog-post">
+        <h2 class="blog-post-title">{{data.title}}</h2>
+        <p class="blog-post-meta"><span class="badge badge-secondary">{{data.timestamp}}</span> by <a
+            href="#">{{data.author}}</a></p>
+
+        <p>{{data.content|safe}}</p>
+
+        <!--fb likes-->
+        <div class="fb-like" data-href="http://127.0.0.1:8000/videos/{{data.video_id}}" data-width=""
+          data-layout="standard" data-action="like" data-size="large" data-share="true"></div>
+
+        <!--fb comments-->
+        <div class="fb-comments" data-href="http://127.0.0.1:8000/videos/{{data.video_id}}" data-numposts="5"
+          data-width=""></div>
+      </div><!-- /.blog-post -->
+
+    </div><!-- /.blog-main -->
+
+
+
+
+
+    <aside class="col-md-4 blog-sidebar">
+      <div class="p-4 mb-3 bg-light rounded">
+        <h4 class="font-italic">About</h4>
+        <p class="mb-0">Taste, What Else?<em> is an Food Website</em> for Reciepies</p>
+      </div>
+
+
+
+      <div class="p-4">
+        <h4 class="font-italic">Taste, What Else?</h4>
+        <ol class="list-unstyled">
+          <li><a href="#">YouTube</a></li>
+          <li><a href="#">Instagram</a></li>
+        </ol>
+      </div>
+    </aside><!-- /.blog-sidebar -->
+  </div>
+</div>
+
+
+
+<!--comments section-->
+<div class="container">
+  <h2>Comments ({{comments.count}})</h2>
+  <!--post a comment-->
+  <div>
+    {% if user.is_authenticated %}
+    <form action="/videos/handlecomment" method="post">{%csrf_token%}
+      <div class="form-group">
+        <label for="comment">Enter Your Comment</label>
+        <input type="text" class="form-control" name="comment" id="comment" placeholder="Enter Your Comment" required>
+      </div>
+      <input type="hidden" name="video_id" value="{{data.video_id}}">
+      <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+    {% else %}
+    <p>Please Log In to Post a Comment</p>
+    {% endif %}
+  </div>
+
+  <!--displaying comments-->
+  {% for comment in comments %}
+  <div class="row my-2">
+    <div class="col-md-1 col-3">
+      <img src="/static/images/usericon.png" class="rounded mx-auto d-block w-100 p-2" alt="user icon">
+    </div>
+    <div class="col-md-11 col-9">
+      <b>{{comment.user.first_name}} {{comment.user.last_name}}</b> <span
+        class="badge badge-secondary">{{comment.timestamp | naturaltime}}</span>
+      <div>
+        {{comment.comment}}
+      </div>
+      <div class="mx-0">
+        <button class="btn btn-sm btn-success" type="button" data-toggle="collapse"
+          data-target="#replyBox{{comment.sno}}" aria-expanded="false" aria-controls="collapseExample">
+          Reply
+        </button>
+        <div class="collapse my-2" id="replyBox{{comment.sno}}">
+          <div class="card card-body">
+            <form action="/videos/handlecomment" method="post">{%csrf_token%}
+              <div class="form-group">
+                <label for="comment">Post a Reply</label>
+                <input type="text" class="form-control" name="comment" id="comment" placeholder="Enter Your Reply"
+                  required>
+                  <input type="hidden" value="{{comment.sno}}" name="parentSno">
+              </div>
+              <input type="hidden" name="video_id" value="{{data.video_id}}">
+              <button type="submit" class="btn btn-sm btn-success">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+
+  <!--previous and next post section-->
+  <div class="container">
+    <div class="row mt-4">
+      {%if prev_post != '' %}
+      <div class="col-md-6">
+        <h6>Previous Post</h6>
+        <div
+          class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+          <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">{{prev_post.category}}</strong>
+            <h3 class="mb-0" id="{{i.video_id}}">{{prev_post.title | truncatechars:30}}</h3>
+            <div class="mb-1 text-muted">{{prev_post.timestamp}}</div>
+            <a href="/videos/{{prev_post.video_id}}" class="stretched-link">Continue reading</a>
+          </div>
+          <div class="col-auto d-none d-lg-block">
+            <rect width="100%" height="100%" fill="#55595c"><img class="bd-placeholder-img"
+                src="/media/{{prev_post.thumbnail}}" width="200" height="200" preserveAspectRatio="xMidYMid slice"
+                focusable="false" role="img"></rect>
+            <!--<svg class="bd-placeholder-img" width="200" height="250" xmlns="/media/{{i.thumbnail}}" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title></title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em"></text></svg>-->
+          </div>
+        </div>
+      </div>
+      {%endif%}
+
+      {%if next_post != '' %}
+      <div class="col-md-6">
+        <h6 class="text-right">Next Post</h6>
+        <div
+          class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+          <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">{{next_post.category}}</strong>
+            <h3 class="mb-0" id="{{i.post_id}}">{{next_post.title| truncatechars:30}}</h3>
+            <div class="mb-1 text-muted">{{next_post.timestamp}}</div>
+            <a href="/videos/{{next_post.video_id}}" class="stretched-link">Continue reading</a>
+          </div>
+          <div class="col-auto d-none d-lg-block">
+            <rect width="100%" height="100%" fill="#55595c"><img class="bd-placeholder-img"
+                src="/media/{{next_post.thumbnail}}" width="200" height="200" preserveAspectRatio="xMidYMid slice"
+                focusable="false" role="img"></rect>
+            <!--<svg class="bd-placeholder-img" width="200" height="250" xmlns="/media/{{i.thumbnail}}" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title></title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em"></text></svg>-->
+          </div>
+        </div>
+      </div>
+      {%endif%}
+    </div>
+  </div>
+
+</div>
+<!--container div ends here-->
+
+{%endblock%}

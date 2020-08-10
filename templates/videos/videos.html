@@ -1,0 +1,41 @@
+{%extends 'basic.html'%}
+{%block title%}Videos | Taste, What Else?{%endblock%}
+{%block css%}
+{%endblock%}
+{%block videosactive%}active{%endblock%}
+{%block body%}
+{% if user.is_superuser %}
+<div class="container-fluid">
+  <div class="row m-2 justify-content-end">
+    <a href="/admin/videos/video/add" target="_blank" class="btn btn-primary">Add Video</a>
+  </div>
+</div>
+{% endif %}
+<div class="container-fluid my-2">
+  <div class="row m-2">
+    {%for i in data%}
+    <div class="col-md-3 ">
+      <div class="card" style="width: 18rem;">
+        <img src="/media/{{i.thumbnail}}" class="card-img-top" alt="...">
+        <div class="card-body">
+
+          <h5 class="card-title"><a href="/videos/{{i.video_id}}" class="text-dark">{{i.title|truncatechars:40}}</a></h5>
+          <p class="card-text">{{i.content|slice:"0:50"|safe}}...</p>
+          <!--slice:"0:50" or truncatechars:50-->
+          {% comment %} {{data.slug}},{{data.video_id}} {% endcomment %}
+        </div>
+      </div>
+    </div>
+    {%if forloop.counter|divisibleby:4%}
+  </div>
+  <div class="row m-2">
+    {%endif%}
+    {%endfor%}
+  </div>
+</div>
+
+{%endblock%}
+
+{%block js%}
+
+{%endblock%}

@@ -1,0 +1,34 @@
+{%extends 'basic.html'%}
+{%block title%}Search | Taste, What Else?{%endblock%}
+{%block css%}
+.row {
+margin-left: 25px;
+}{%endblock%}
+{%block body%}
+
+
+<div class="container mt-3 ">
+
+    
+    {%if data|length < 1 %}
+    <h6>No Search Results found</h6>
+    {%else%}
+    <h6>Search Results for {{query}}:-</h6>
+    {% endif %}
+    <hr>
+    <div class="row ">
+    {% for i in data %}
+    <div class="card mr-3" style="width: 18rem;">
+        <img src="/media/{{i.thumbnail}}" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">{{i.title|truncatechars:40}}</h5>
+        <p class="card-text">{{i.content|slice:"0:50"}}...</p>
+            <!--slice:"0:50" or truncatechars:50-->
+            <a href="/videos/{{i.slug}}" class="btn btn-primary">Open</a>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    
+</div>
+{% endblock %}
